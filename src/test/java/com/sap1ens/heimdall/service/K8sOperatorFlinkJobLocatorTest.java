@@ -21,6 +21,7 @@ import java.util.UUID;
 import org.apache.flink.kubernetes.operator.api.FlinkDeployment;
 import org.apache.flink.kubernetes.operator.api.spec.FlinkDeploymentSpec;
 import org.apache.flink.kubernetes.operator.api.spec.FlinkVersion;
+import org.apache.flink.kubernetes.operator.api.spec.IngressSpec;
 import org.apache.flink.kubernetes.operator.api.spec.JobManagerSpec;
 import org.apache.flink.kubernetes.operator.api.spec.JobSpec;
 import org.apache.flink.kubernetes.operator.api.spec.Resource;
@@ -116,6 +117,32 @@ public class K8sOperatorFlinkJobLocatorTest {
     assertEquals("project/namespace/app:v1", flinkJobLocator.getShortImage(complexDeployment));
   }
 
+  @Test
+  public void testGetIngressUrl() {
+    // Test with ingress URL
+    var deploymentWithIngress = generateFlinkDeploymentWithIngress("test-job.example.com");
+    assertEquals("test-job.example.com", flinkJobLocator.getIngressUrl(deploymentWithIngress));
+
+    // Test without ingress
+    var deploymentWithoutIngress = generateFlinkDeployment();
+    assertEquals(null, flinkJobLocator.getIngressUrl(deploymentWithoutIngress));
+  }
+
+  @Test
+  public void testFindAllWithIngress() {
+    var flinkDeployment = generateFlinkDeploymentWithIngress("test.example.com");
+    Mockito.when(appConfig.joblocator().k8sOperator().namespaceToWatch()).thenReturn("default");
+    Mockito.when(appConfig.joblocator().k8sOperator().namespacesToWatch())
+        .thenReturn(List.of("default"));
+    Mockito.when(flinkDeploymentClient.find(List.of("default")))
+        .thenReturn(List.of(flinkDeployment));
+
+    var flinkJobs = flinkJobLocator.findAll();
+    assertEquals(1, flinkJobs.size());
+    var flinkJob = flinkJobs.get(0);
+    assertEquals("test.example.com", flinkJob.ingressUrl());
+  }
+
   private List<FlinkDeployment> generateFlinkDeployments(int num) {
     var flinkDeployments = new ArrayList<FlinkDeployment>();
     for (int i = 0; i < num; i++) {
@@ -160,6 +187,14 @@ public class K8sOperatorFlinkJobLocatorTest {
     jobStatus.setState(org.apache.flink.api.common.JobStatus.RUNNING);
     status.setJobStatus(jobStatus);
     flinkDeployment.setStatus(status);
+    return flinkDeployment;
+  }
+
+  private FlinkDeployment generateFlinkDeploymentWithIngress(String ingressTemplate) {
+    var flinkDeployment = generateFlinkDeployment();
+    var ingressSpec = new IngressSpec();
+    ingressSpec.setTemplate(ingressTemplate);
+    flinkDeployment.getSpec().setIngress(ingressSpec);
     return flinkDeployment;
   }
 

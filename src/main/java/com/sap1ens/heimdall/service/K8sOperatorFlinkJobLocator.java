@@ -71,7 +71,8 @@ public class K8sOperatorFlinkJobLocator implements FlinkJobLocator {
                     tmReplicas,
                     tmSpec.getResource().getCpu().toString(),
                     tmSpec.getResource().getMemory())),
-        flinkDeployment.getMetadata().getLabels());
+        flinkDeployment.getMetadata().getLabels(),
+        getIngressUrl(flinkDeployment));
   }
 
   protected FlinkJobType getJobType(FlinkDeployment flinkDeployment) {
@@ -113,5 +114,11 @@ public class K8sOperatorFlinkJobLocator implements FlinkJobLocator {
   protected String getFlinkVersion(FlinkDeployment flinkDeployment) {
     String rawVersion = flinkDeployment.getSpec().getFlinkVersion().toString();
     return rawVersion.replace("_", ".").replace("v", "");
+  }
+
+  protected String getIngressUrl(FlinkDeployment flinkDeployment) {
+    return Optional.ofNullable(flinkDeployment.getSpec().getIngress())
+        .map(ingress -> ingress.getTemplate())
+        .orElse(null);
   }
 }

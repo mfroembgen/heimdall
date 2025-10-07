@@ -13,4 +13,5 @@ public record FlinkJob(
     String flinkVersion,
     Integer parallelism,
     Map<String, FlinkJobResources> resources,
-    Map<String, String> metadata) {}
+    Map<String, String> metadata,
+    String ingressUrl) {}

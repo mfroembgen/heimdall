@@ -321,7 +321,7 @@
                         <td class="border border-slate-300 p-2">{formatStartTime(flinkJob.startTime)}</td>
                         <td class="border border-slate-300 p-2">
                             <p>
-                                <ExternalEndpoint type="flink-ui" title="Flink UI" jobName="{flinkJob.name}" />
+                                <ExternalEndpoint type="flink-ui" title="Flink UI" jobName="{flinkJob.name}" ingressUrl="{flinkJob.ingressUrl}" />
                                 <ExternalEndpoint type="flink-api" title="Flink API" jobName="{flinkJob.name}" />
                             </p>
                             <p>
@@ -371,7 +371,7 @@
                         {/if}
                     </div>
                     <p>
-                        <ExternalEndpoint type="flink-ui" title="Flink UI" jobName="{flinkJob.name}" />
+                        <ExternalEndpoint type="flink-ui" title="Flink UI" jobName="{flinkJob.name}" ingressUrl="{flinkJob.ingressUrl}" />
                         <ExternalEndpoint type="flink-api" title="Flink API" jobName="{flinkJob.name}" />
                         <ExternalEndpoint type="metrics" title="Metrics" jobName="{flinkJob.name}" />
                         <ExternalEndpoint type="logs" title="Logs" jobName="{flinkJob.name}" />
